@@ -58,3 +58,12 @@ wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsj
 chmod a+x dd.sh && bash dd.sh -d 8 -v 64 -a -p password
 ```
 > 转自：https://moeclub.org/2018/04/03/603/
+
+## l2tp.sh
+一键安装VPN，使用方法如下
+```
+wget --no-check-certificate https://raw.githubusercontent.com/teddysun/across/master/l2tp.sh
+chmod +x l2tp.sh
+./l2tp.sh
+```
+> 转自：https://github.com/teddysun
