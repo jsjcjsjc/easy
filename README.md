@@ -40,6 +40,7 @@ AliDDNS_SK="yyyyyyyyyyyyyyy"
 chmod +x aliddns.sh
 ./aliddns.sh #建议加入crontab
 ```
+> 转自：https://blog.ilemonrain.com/linux/aliddns.html
 
 ## dd.sh
 方便的给KVM VPS安装windows，使用方法如下
