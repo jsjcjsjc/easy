@@ -1,66 +1,60 @@
-# 一些从各地转移过来的脚本，一般都只适用于debian
-从moeclub.org复制过来的，怕哪天他下架了
 
-使用方法如下
 
-apt-get update && apt-get install -y screen gawk sed grep && screen
+# 一些从各地收集过来不错的一键脚本
 
-wget --no-check-certificate -qO DebianNET.sh 'https://raw.githubusercontent.com/jsjcjsjc/windd/master/DebianNET.sh' && bash DebianNET.sh -dd 'http://xxxxx/xx.vhd.gz'
 
-====================================
-从moeclub.org复制过来的，怕哪天他下架了
-使用方法如下
-apt-get install -y xz-utils openssl gawk file wget --no-check-certificate -qO InstallNET.sh 'https://moeclub.org/attachment/LinuxShell/InstallNET.sh' && chmod a+x InstallNET.sh
+## src.sh
+由于有些VPS自带的源乱七八糟的，所以有了这个脚本。一键智能替换系统的源，支持debian 7/8/9，使用方法如下
+```
+wget -qO- https://raw.githubusercontent.com/jsjcjsjc/easy/master/src.sh | bash
+```
+## allsrc.sh
+和src.sh差不多，支持CentOS/Ubuntu/Debian，使用方法如下
+```
+wget -qO- https://raw.githubusercontent.com/jsjcjsjc/easy/master/allsrc.sh | bash
+```
+> 转自：https://www.oldking.net/697.html
 
-#使用默认镜像全自动安装
-bash InstallNET.sh -d 8 -v 64 -a
+## iptables.sh
+手动配置端口转发太麻烦了，所以有了这个脚本，比较方便的设置debian系统的端口转发，支持TC/UDP，也支持端口段，使用方法如下
+```
+wget -qO- https://raw.githubusercontent.com/jsjcjsjc/easy/master/iptables.sh | bash
+```
+> 转自：https://doub.io/ss-jc34/
 
-#使用自定义镜像全自动安装
-bash InstallNET.sh -c 6.9 -v 64 -a --mirror 'http://mirror.centos.org/centos'
+## aliddns.sh
+通过aliyun的API实现DDNS功能，使用方法如下
+```
+apt-get update && apt-get install curl dnsutils -y #非必需
+cd
+mkdir ddns && cd ddns
+wget https://raw.githubusercontent.com/jsjcjsjc/easy/master/aliddns.sh
 
-#使用自定义镜像自定义网络参数全自动安装
-#bash InstallNET.sh -u 16.04 -v 64 -a --ip-addr x.x.x.x --ip-gate x.x.x.x --ip-mask x.x.x.x --mirror 'http://archive.ubuntu.com/ubuntu'
+vi aliddns.sh #修改如下信息
+AliDDNS_DomainName="domain.com"
+AliDDNS_SubDomainName="test"
+AliDDNS_TTL="600"
+AliDDNS_AK="xxxxxx"
+AliDDNS_SK="yyyyyyyyyyyyyyy"
 
-#使用自定义网络参数全自动dd方式安装
-#bash InstallNET.sh --ip-addr x.x.x.x --ip-gate x.x.x.x --ip-mask x.x.x.x -dd 'https://moeclub.org/get-win7embx86-auto'
+chmod +x aliddns.sh
+./aliddns.sh #建议加入crontab
+```
 
-#使用自定义网络参数全自动dd方式安装存储在谷歌网盘中的镜像(调用文件ID的方式)
-#bash InstallNET.sh --ip-addr x.x.x.x --ip-gate x.x.x.x --ip-mask x.x.x.x -dd "$(echo "1cqVl2wSGx92UTdhOxU9pW3wJgmvZMT_J" |xargs -n1 bash <(wget --no-check-certificate -qO- 'https://moeclub.org/get-gdlink'))"
+## dd.sh
+方便的给KVM VPS安装windows，使用方法如下
+```
+apt-get update && apt-get install -y xz-utils openssl gawk file
+wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/dd.sh' && chmod a+x dd.sh
+bash dd.sh -dd 'http://xxxxxxx.com/dd/2012.vhd.gz'
+```
 
-#使用自定义网络参数全自动dd方式安装存储在谷歌网盘中的镜像
-#bash InstallNET.sh --ip-addr x.x.x.x --ip-gate x.x.x.x --ip-mask x.x.x.x -dd "$(echo "https://drive.google.com/open?id=1cqVl2wSGx92UTdhOxU9pW3wJgmvZMT_J" |xargs -n1 bash <(wget --no-check-certificate -qO- 'https://moeclub.org/get-gdlink'))"
 
-Usage:
-bash InstallNET.sh -d/--debian [dist-name]
--u/--ubuntu [dist-name]
--c/--centos [dist-version]
--v/--ver [32/i386|64/amd64]
---ip-addr/--ip-gate/--ip-mask
--apt/-yum/--mirror
--dd/--image
--a/-m
-
-# dist-name: 发行版本代号
-# dist-version: 发行版本号
-# -apt/-yum/--mirror : 使用定义镜像
-# -a/-m : 询问是否能进入VNC自行操作. -a 为不提示(一般用于全自动安装), -m 为提示.
-# 以下示例中,将X.X.X.X替换为自己的网络参数.
-# --ip-addr :IP Address/IP地址
-# --ip-gate :Gateway /网关
-# --ip-mask :Netmask /子网掩码
-====================================
-从https://blog.ilemonrain.com/linux/aliddns.html复制过来的
-
-测试了多个ddns代码，这个兼容性最强，可以直接用于QNAP原生系统
-
-首先，安装依赖：
-
-Ubuntu/Debian：
-
-apt-get update && apt-get install curl dnsutils -y
-
-CentOS：
-
-yum makecache fast
-
-yum install curl bind-utils -y
+## dd.sh
+也可以方便的安装全新的CentOS/Ubuntu/Debian，我一般只用debian，使用方法如下，其他参数详见作者页面
+```
+apt-get update && apt-get install -y xz-utils openssl gawk file
+wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/linuxdd/master/dd.sh'
+chmod a+x dd.sh && bash dd.sh -d 8 -v 64 -a -p password
+```
+> 转自：https://moeclub.org/2018/04/03/603/
