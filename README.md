@@ -54,7 +54,7 @@ bash dd.sh -dd 'http://xxxxxxx.com/dd/2012.vhd.gz'
 也可以方便的安装全新的CentOS/Ubuntu/Debian，我一般只用debian，使用方法如下，其他参数详见作者页面
 ```
 apt-get update && apt-get install -y xz-utils openssl gawk file
-wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/linuxdd/master/dd.sh'
+wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/dd.sh'
 chmod a+x dd.sh && bash dd.sh -d 8 -v 64 -a -p password
 ```
 > 转自：https://moeclub.org/2018/04/03/603/
@@ -62,7 +62,7 @@ chmod a+x dd.sh && bash dd.sh -d 8 -v 64 -a -p password
 ## l2tp.sh
 一键安装VPN，使用方法如下
 ```
-wget --no-check-certificate https://raw.githubusercontent.com/teddysun/across/master/l2tp.sh
+wget --no-check-certificate https://raw.githubusercontent.com/jsjcjsjc/easy/master/l2tp.sh
 chmod +x l2tp.sh
 ./l2tp.sh
 ```
