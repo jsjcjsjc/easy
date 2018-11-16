@@ -23,6 +23,7 @@ export setNet='0'
 export setRDP='0'
 export isMirror='0'
 export FindDists='0'
+export loaderMode='0'
 export SpikCheckDIST='0'
 export UNKNOWHW='0'
 export UNVER='6.4'
@@ -81,6 +82,15 @@ while [[ $# -ge 1 ]]; do
     --ip-gate)
       shift
       ipGate="$1"
+      shift
+      ;;
+    --loader)
+      shift
+      loaderMode='1'
+      ;;
+    --prefer)
+      shift
+      tmpPrefer="$1"
       shift
       ;;
     -a|--auto)
@@ -175,10 +185,14 @@ if [[ -n "$tmpWORD" ]]; then
   CheckDependence openssl;
 fi
 
-[[ -f '/boot/grub/grub.cfg' ]] && GRUBOLD='0' && GRUBDIR='/boot/grub' && GRUBFILE='grub.cfg';
-[[ -z "$GRUBDIR" ]] && [[ -f '/boot/grub2/grub.cfg' ]] && GRUBOLD='0' && GRUBDIR='/boot/grub2' && GRUBFILE='grub.cfg';
-[[ -z "$GRUBDIR" ]] && [[ -f '/boot/grub/grub.conf' ]] && GRUBOLD='1' && GRUBDIR='/boot/grub' && GRUBFILE='grub.conf';
-[ -z "$GRUBDIR" -o -z "$GRUBFILE" ] && echo -ne "Error! \nNot Found grub path.\n" && exit 1;
+if [[ "$loaderMode" == "0" ]]; then
+  [[ -f '/boot/grub/grub.cfg' ]] && GRUBOLD='0' && GRUBDIR='/boot/grub' && GRUBFILE='grub.cfg';
+  [[ -z "$GRUBDIR" ]] && [[ -f '/boot/grub2/grub.cfg' ]] && GRUBOLD='0' && GRUBDIR='/boot/grub2' && GRUBFILE='grub.cfg';
+  [[ -z "$GRUBDIR" ]] && [[ -f '/boot/grub/grub.conf' ]] && GRUBOLD='1' && GRUBDIR='/boot/grub' && GRUBFILE='grub.conf';
+  [ -z "$GRUBDIR" -o -z "$GRUBFILE" ] && echo -ne "Error! \nNot Found grub path.\n" && exit 1;
+else
+  tmpINS='auto'
+fi
 
 if [[ "$isMirror" == '1' ]]; then
   if [[ -n "$tmpMirror" ]]; then
@@ -227,6 +241,14 @@ fi
 
 if [[ -z "$VER" ]]; then
   VER='i386';
+fi
+
+if [[ -n "$tmpPrefer" ]]; then
+  PreferOption="$(echo "$tmpPrefer" |sed 's/[[:space:]]*//g')"
+fi
+
+if [[ -z "$PreferOption" ]]; then
+  PreferOption='current';
 fi
 
 if [[ -z "$tmpDIST" ]]; then
@@ -386,9 +408,9 @@ echo -e "\n[\033[33m$LinuxName\033[0m] [\033[33m$DIST\033[0m] [\033[33m$VER\033[
 [[ -z "$DISTMirror" ]] && echo -ne "\033[31mError! \033[0mInvaild mirror! \n" && exit 1
 
 if [[ "$linuxdists" == 'debian' ]] || [[ "$linuxdists" == 'ubuntu' ]]; then
-wget --no-check-certificate -qO '/boot/initrd.img' "http://$DISTMirror/dists/$DIST/main/installer-$VER/current/images/netboot/$linuxdists-installer/$VER/initrd.gz"
+wget --no-check-certificate -qO '/boot/initrd.img' "http://$DISTMirror/dists/$DIST/main/installer-$VER/$PreferOption/images/netboot/$linuxdists-installer/$VER/initrd.gz"
 [[ $? -ne '0' ]] && echo -ne "\033[31mError! \033[0mDownload 'initrd.img' for \033[33m$linuxdists\033[0m failed! \n" && exit 1
-wget --no-check-certificate -qO '/boot/vmlinuz' "http://$DISTMirror/dists/$DIST/main/installer-$VER/current/images/netboot/$linuxdists-installer/$VER/linux"
+wget --no-check-certificate -qO '/boot/vmlinuz' "http://$DISTMirror/dists/$DIST/main/installer-$VER/$PreferOption/images/netboot/$linuxdists-installer/$VER/linux"
 [[ $? -ne '0' ]] && echo -ne "\033[31mError! \033[0mDownload 'vmlinuz' for \033[33m$linuxdists\033[0m failed! \n" && exit 1
 elif [[ "$linuxdists" == 'centos' ]]; then
 wget --no-check-certificate -qO '/boot/initrd.img' "http://$DISTMirror/$DIST/os/$VER/isolinux/initrd.img"
@@ -402,7 +424,7 @@ if [[ "$linuxdists" == 'debian' ]]; then
     [[ $? -ne '0' ]] && echo -ne "\033[31mError! \033[0mDownload 'firmware' for \033[33m$linuxdists\033[0m failed! \n" && exit 1
   fi
   if [[ "$ddMode" == '1' ]]; then
-    vKernel_udeb=$(wget --no-check-certificate -qO- "http://$DISTMirror/dists/$DIST/main/installer-$VER/current/images/udeb.list" |grep '^acpi-modules' |head -n1 |grep -o '[0-9]\{1,2\}.[0-9]\{1,2\}.[0-9]\{1,2\}-[0-9]\{1,2\}' |head -n1)
+    vKernel_udeb=$(wget --no-check-certificate -qO- "http://$DISTMirror/dists/$DIST/main/installer-$VER/$PreferOption/images/udeb.list" |grep '^acpi-modules' |head -n1 |grep -o '[0-9]\{1,2\}.[0-9]\{1,2\}.[0-9]\{1,2\}-[0-9]\{1,2\}' |head -n1)
     [[ -z "vKernel_udeb" ]] && vKernel_udeb="3.16.0-4"
   fi
 fi
@@ -478,11 +500,15 @@ echo ${arrayNum[@]} |sed 's/\s/\n/g' |sort -n -k 1 -t ',' |tail -n1 |cut -d',' -
   }
 }
 
-[[ ! -f $GRUBDIR/$GRUBFILE ]] && echo "Error! Not Found $GRUBFILE. " && exit 1;
+if [[ "$loaderMode" == "0" ]]; then
+  [[ ! -f $GRUBDIR/$GRUBFILE ]] && echo "Error! Not Found $GRUBFILE. " && exit 1;
 
-[[ ! -f $GRUBDIR/$GRUBFILE.old ]] && [[ -f $GRUBDIR/$GRUBFILE.bak ]] && mv -f $GRUBDIR/$GRUBFILE.bak $GRUBDIR/$GRUBFILE.old;
-mv -f $GRUBDIR/$GRUBFILE $GRUBDIR/$GRUBFILE.bak;
-[[ -f $GRUBDIR/$GRUBFILE.old ]] && cat $GRUBDIR/$GRUBFILE.old >$GRUBDIR/$GRUBFILE || cat $GRUBDIR/$GRUBFILE.bak >$GRUBDIR/$GRUBFILE;
+  [[ ! -f $GRUBDIR/$GRUBFILE.old ]] && [[ -f $GRUBDIR/$GRUBFILE.bak ]] && mv -f $GRUBDIR/$GRUBFILE.bak $GRUBDIR/$GRUBFILE.old;
+  mv -f $GRUBDIR/$GRUBFILE $GRUBDIR/$GRUBFILE.bak;
+  [[ -f $GRUBDIR/$GRUBFILE.old ]] && cat $GRUBDIR/$GRUBFILE.old >$GRUBDIR/$GRUBFILE || cat $GRUBDIR/$GRUBFILE.bak >$GRUBDIR/$GRUBFILE;
+else
+  GRUBOLD='2'
+fi
 
 [[ "$GRUBOLD" == '0' ]] && {
   READGRUB='/tmp/grub.read'
@@ -526,6 +552,7 @@ mv -f $GRUBDIR/$GRUBFILE $GRUBDIR/$GRUBFILE.bak;
   INSERTGRUB="$(awk '/title[\ ]|title[\t]/{print NR}' $GRUBDIR/$GRUBFILE|head -n 1)"
 }
 
+if [[ "$loaderMode" == "0" ]]; then
 [[ -n "$(grep 'linux.*/\|kernel.*/' /tmp/grub.new |awk '{print $2}' |tail -n 1 |grep '^/boot/')" ]] && Type='InBoot' || Type='NoBoot';
 
 LinuxKernel="$(grep 'linux.*/\|kernel.*/' /tmp/grub.new |awk '{print $1}' |head -n 1)";
@@ -550,10 +577,12 @@ fi
 }
 
 sed -i '$a\\n' /tmp/grub.new;
+fi
 
 [[ "$inVNC" == 'n' ]] && {
 GRUBPATCH='0';
 
+if [[ "$loaderMode" == "0" ]]; then
 [ -f '/etc/network/interfaces' -o -d '/etc/sysconfig/network-scripts' ] || {
   echo "Error, Not found interfaces config.";
   exit 1;
@@ -562,6 +591,7 @@ GRUBPATCH='0';
 sed -i ''${INSERTGRUB}'i\\n' $GRUBDIR/$GRUBFILE;
 sed -i ''${INSERTGRUB}'r /tmp/grub.new' $GRUBDIR/$GRUBFILE;
 [[ -f  $GRUBDIR/grubenv ]] && sed -i 's/saved_entry/#saved_entry/g' $GRUBDIR/grubenv;
+fi
 
 [[ -d /tmp/boot ]] && rm -rf /tmp/boot;
 mkdir -p /tmp/boot;
@@ -671,6 +701,8 @@ d-i preseed/late_command string	\
 sed -ri 's/^#?PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config; \
 sed -ri 's/^#?PasswordAuthentication.*/PasswordAuthentication yes/g' /target/etc/ssh/sshd_config;
 EOF
+
+[[ "$loaderMode" != "0" ]] && AutoNet='1'
 
 [[ "$setNet" == '0' ]] && [[ "$AutoNet" == '1' ]] && {
   sed -i '/netcfg\/disable_autoconfig/d' /tmp/boot/preseed.cfg
@@ -801,4 +833,14 @@ rm -rf /tmp/boot;
 chown root:root $GRUBDIR/$GRUBFILE
 chmod 444 $GRUBDIR/$GRUBFILE
 
-sleep 3 && reboot >/dev/null 2>&1
+if [[ "$loaderMode" == "0" ]]; then
+  sleep 3 && reboot >/dev/null 2>&1
+else
+  rm -rf "$HOME/loader"
+  mkdir -p "$HOME/loader"
+  cp -rf "/boot/initrd.img" "$HOME/loader/initrd.img"
+  cp -rf "/boot/vmlinuz" "$HOME/loader/vmlinuz"
+  [[ -f "/boot/initrd.img" ]] && rm -rf "/boot/initrd.img"
+  [[ -f "/boot/vmlinuz" ]] && rm -rf "/boot/vmlinuz"
+  echo && ls -AR1 "$HOME/loader"
+fi
