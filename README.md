@@ -12,9 +12,9 @@ wget -qO- https://raw.githubusercontent.com/jsjcjsjc/easy/master/src.sh | bash
 和src.sh差不多，支持CentOS/Ubuntu/Debian，使用方法如下
 ```
 wget https://raw.githubusercontent.com/jsjcjsjc/easy/master/allsrc.sh
-bash superupdate.sh
-bash superupdate.sh 163
-bash superupdate.sh restore
+bash allsrc.sh
+bash allsrc.sh 163
+bash allsrc.sh restore
 ```
 > 转自：https://www.oldking.net/697.html
 
