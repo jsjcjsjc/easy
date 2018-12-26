@@ -42,6 +42,9 @@ AliDDNS_SK="yyyyyyyyyyyyyyy"
 
 chmod +x aliddns.sh
 ./aliddns.sh #建议加入crontab
+
+crontab -e
+*/5 * * * * /bin/bash /root/ddns/aliddns.sh
 ```
 > 转自：https://blog.ilemonrain.com/linux/aliddns.html
 
