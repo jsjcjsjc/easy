@@ -48,21 +48,21 @@ crontab -e
 ```
 > 转自：https://blog.ilemonrain.com/linux/aliddns.html
 
-## dd.sh
+## InstallNET.sh
 方便的给KVM VPS安装windows，使用方法如下
 ```
 apt-get update && apt-get install -y xz-utils openssl gawk file
-wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/dd.sh' && chmod a+x dd.sh
-bash dd.sh -dd 'http://xxxxxxx.com/dd/2012.vhd.gz'
+wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/InstallNET.sh' && chmod a+x InstallNET.sh
+bash InstallNET.sh -dd 'https://image.moeclub.org/GoogleDrive/1tx6aZM8c289MaQyer37aq3ujVBsAESNm' 
 ```
 
 
-## dd.sh
+## InstallNET.sh
 也可以方便的安装全新的CentOS/Ubuntu/Debian，我一般只用debian，使用方法如下，其他参数详见作者页面
 ```
 apt-get update && apt-get install -y xz-utils openssl gawk file
-wget --no-check-certificate -qO dd.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/dd.sh'
-chmod a+x dd.sh && bash dd.sh -d 8 -v 64 -a -p password
+wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/jsjcjsjc/easy/master/InstallNET.sh'
+chmod a+x InstallNET.sh && bash InstallNET.sh -d 9 -v 64 -a
 ```
 > 转自：https://moeclub.org/2018/04/03/603/
 
